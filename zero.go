@@ -4,9 +4,7 @@
 // License: https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 // Package zero provides a zero check for arbitrary values.
-
 package zero
-
 
 import (
 	"reflect"
