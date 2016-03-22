@@ -16,8 +16,9 @@ type TestDetailSubStructure struct {
 }
 
 type TestDetail struct {
-	ID   int
-	Data TestDetailSubStructure
+	ID     int
+	Detail Detail
+	Data   TestDetailSubStructure
 }
 
 type Detail interface{}
@@ -51,6 +52,7 @@ func TestZero(t *testing.T) {
 		nonZeroDetail1 Detail = &TestDetail{Data: TestDetailSubStructure{Params: []TestDetailParam{TestDetailParam{55}}}}
 		nonZeroDetail2 Detail = &TestDetail{Data: TestDetailSubStructure{ID: 1234}}
 		nonZeroDetail3 Detail = &TestDetail{ID: 1234}
+		nonZeroDetail4 Detail = &TestDetail{Detail: nonZeroDetail3}
 	)
 
 	for i, test := range []struct {
@@ -59,7 +61,7 @@ func TestZero(t *testing.T) {
 	}{
 		// basic types
 		{0, true},
-		{complex(0,0), true},
+		{complex(0, 0), true},
 		{1, false},
 		{1.0, false},
 		{true, false},
@@ -106,6 +108,7 @@ func TestZero(t *testing.T) {
 		{nonZeroDetail1, false},
 		{nonZeroDetail2, false},
 		{nonZeroDetail3, false},
+		{nonZeroDetail4, false},
 	} {
 		if IsZero(test.v) != test.want {
 			t.Errorf("Zero(%v)[%d] = %t", test.v, i, !test.want)

@@ -13,6 +13,9 @@ import (
 )
 
 func isZero(v reflect.Value, seen map[comparison]bool) bool {
+	if !v.IsValid() {
+		return true
+	}
 	// cycle check
 	if v.CanAddr() {
 		ptr := unsafe.Pointer(v.UnsafeAddr())
