@@ -1,8 +1,3 @@
-// Copyright © 2016 Alan A. A. Donovan & Brian W. Kernighan.
-// Copyright © 2016 Alexandr Razumov
-// Copyright © 2016 Zenhotels
-// License: https://creativecommons.org/licenses/by-nc-sa/4.0/
-
 // Package zero provides a zero check for arbitrary values.
 package zero
 
