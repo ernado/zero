@@ -66,10 +66,6 @@ func TestZero(t *testing.T) {
 		{[]string{"foo"}, false},
 		{[]string(nil), true},
 		{[]string{}, true},
-		// cycle pointers
-		//{cycleDetail, false},
-		//{cycleSlice, false},
-		//{cycleArray, true},
 		// maps
 		{map[string][]int{"foo": {1, 2, 3}}, false},
 		{map[string][]int{"foo": {1, 2, 3}}, false},
