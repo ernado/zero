@@ -39,9 +39,13 @@ func TestZero(t *testing.T) {
 		zeroDetail3 Detail = struct{}{}
 		zeroDetail4 Detail = &TestDetail{}
 		zeroDetail5 Detail = &TestDetail{Data: TestDetailSubStructure{Params: nil}}
-		zeroDetail6 Detail = &TestDetail{Data: TestDetailSubStructure{Params: make([]TestDetailParam, 0, 10)}}
+		zeroDetail6 Detail = &TestDetail{Data: TestDetailSubStructure{
+			Params: make([]TestDetailParam, 0, 10)},
+		}
 
-		nonZeroDetail1 Detail = &TestDetail{Data: TestDetailSubStructure{Params: []TestDetailParam{TestDetailParam{55}}}}
+		nonZeroDetail1 Detail = &TestDetail{Data: TestDetailSubStructure{
+			Params: []TestDetailParam{TestDetailParam{55}}},
+		}
 		nonZeroDetail2 Detail = &TestDetail{Data: TestDetailSubStructure{ID: 1234}}
 		nonZeroDetail3 Detail = &TestDetail{ID: 1234}
 		nonZeroDetail4 Detail = &TestDetail{Detail: nonZeroDetail3}
@@ -105,7 +109,9 @@ func TestZero(t *testing.T) {
 }
 
 func BenchmarkDetail(b *testing.B) {
-	var nonZeroDetail1 Detail = &TestDetail{Data: TestDetailSubStructure{Params: []TestDetailParam{TestDetailParam{55}}}}
+	var nonZeroDetail1 Detail = &TestDetail{Data: TestDetailSubStructure{
+		Params: []TestDetailParam{TestDetailParam{55}}},
+	}
 	for i := 0; i < b.N; i++ {
 		IsZero(nonZeroDetail1)
 	}
