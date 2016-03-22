@@ -104,23 +104,6 @@ func TestZero(t *testing.T) {
 	}
 }
 
-func Example_equal() {
-	fmt.Println(IsZero([]int{1, 2, 3}))      // "false"
-	fmt.Println(IsZero([]string{"bar"}))     // "false"
-	fmt.Println(IsZero([]string(nil)))       // "true"
-	fmt.Println(IsZero([]string{}))          // "true"
-	fmt.Println(IsZero(map[string]int{}))    // "true"
-	fmt.Println(IsZero(map[string]int(nil))) // "true"
-
-	// Output:
-	// false
-	// false
-	// true
-	// true
-	// true
-	// true
-}
-
 func BenchmarkDetail(b *testing.B) {
 	var nonZeroDetail1 Detail = &TestDetail{Data: TestDetailSubStructure{Params: []TestDetailParam{TestDetailParam{55}}}}
 	for i := 0; i < b.N; i++ {
@@ -175,4 +158,24 @@ func BenchmarkIsEmptySimple(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		IsEmptyDetail(nonZeroDetail1)
 	}
+}
+
+type Structure struct {
+	ID int
+}
+
+func ExampleStructure() {
+	zeroStructure := Structure{}
+	zeroStructurePointer := &zeroStructure
+	nonZero := Structure{ID: 1}
+	nonZeroPointer := &nonZero
+	fmt.Println(IsZero(zeroStructure))        // true
+	fmt.Println(IsZero(zeroStructurePointer)) // true
+	fmt.Println(IsZero(nonZero))              // false
+	fmt.Println(IsZero(nonZeroPointer))       // false
+	// Output:
+	// true
+	// true
+	// false
+	// false
 }
