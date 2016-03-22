@@ -3,6 +3,7 @@ package zero
 import (
 	"bytes"
 	"fmt"
+	"reflect"
 	"testing"
 )
 
@@ -27,15 +28,6 @@ func TestZero(t *testing.T) {
 	one, zeroInt := 1, 0
 	ch1 := make(chan int)
 	var zeroChan chan int
-
-	type CyclePtr *CyclePtr
-	var cyclePtr1 CyclePtr
-	cyclePtr1 = &cyclePtr1
-
-	type CycleSlice []CycleSlice
-	var cycleSlice CycleSlice
-	cycleSlice = append(cycleSlice, cycleSlice)
-	cycleArray := [2]CyclePtr{cyclePtr1, cyclePtr1}
 
 	type myString string
 
@@ -75,9 +67,9 @@ func TestZero(t *testing.T) {
 		{[]string(nil), true},
 		{[]string{}, true},
 		// cycle pointers
-		{cyclePtr1, true},
-		{cycleSlice, false},
-		{cycleArray, true},
+		//{cycleDetail, false},
+		//{cycleSlice, false},
+		//{cycleArray, true},
 		// maps
 		{map[string][]int{"foo": {1, 2, 3}}, false},
 		{map[string][]int{"foo": {1, 2, 3}}, false},
@@ -131,4 +123,60 @@ func Example_equal() {
 	// true
 	// true
 	// true
+}
+
+func BenchmarkDetail(b *testing.B) {
+	var nonZeroDetail1 Detail = &TestDetail{Data: TestDetailSubStructure{Params: []TestDetailParam{TestDetailParam{55}}}}
+	for i := 0; i < b.N; i++ {
+		IsZero(nonZeroDetail1)
+	}
+}
+
+func BenchmarkDetailSimple(b *testing.B) {
+	var nonZeroDetail1 Detail = &TestDetailParam{}
+	for i := 0; i < b.N; i++ {
+		IsZero(nonZeroDetail1)
+	}
+}
+
+func isEmptyValue(v reflect.Value) bool {
+	switch v.Kind() {
+	case reflect.Array, reflect.Map, reflect.Slice, reflect.String:
+		return v.Len() == 0
+	case reflect.Bool:
+		return !v.Bool()
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return v.Int() == 0
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		return v.Uint() == 0
+	case reflect.Float32, reflect.Float64:
+		return v.Float() == 0
+	case reflect.Interface, reflect.Ptr:
+		return v.IsNil()
+	}
+	return false
+}
+
+func IsEmptyDetail(detail Detail) bool {
+	v := reflect.ValueOf(detail).Elem()
+	for i := 0; i < v.NumField(); i++ {
+		if !isEmptyValue(v.Field(i)) {
+			return false
+		}
+	}
+	return true
+}
+
+func BenchmarkIsEmpty(b *testing.B) {
+	var nonZeroDetail1 Detail = &TestDetail{Data: TestDetailSubStructure{Params: []TestDetailParam{TestDetailParam{55}}}}
+	for i := 0; i < b.N; i++ {
+		IsEmptyDetail(nonZeroDetail1)
+	}
+}
+
+func BenchmarkIsEmptySimple(b *testing.B) {
+	var nonZeroDetail1 Detail = &TestDetailParam{}
+	for i := 0; i < b.N; i++ {
+		IsEmptyDetail(nonZeroDetail1)
+	}
 }

@@ -9,21 +9,11 @@ package zero
 
 import (
 	"reflect"
-	"unsafe"
 )
 
-func isZero(v reflect.Value, seen map[comparison]bool) bool {
+func isZero(v reflect.Value) bool {
 	if !v.IsValid() {
 		return true
-	}
-	// cycle check
-	if v.CanAddr() {
-		ptr := unsafe.Pointer(v.UnsafeAddr())
-		c := comparison{ptr, v.Type()}
-		if seen[c] {
-			return true // already seen
-		}
-		seen[c] = true
 	}
 
 	switch v.Kind() {
@@ -43,11 +33,11 @@ func isZero(v reflect.Value, seen map[comparison]bool) bool {
 		return v.Complex() == 0
 
 	case reflect.Ptr, reflect.Interface:
-		return isZero(v.Elem(), seen)
+		return isZero(v.Elem())
 
 	case reflect.Array:
 		for i := 0; i < v.Len(); i++ {
-			if !isZero(v.Index(i), seen) {
+			if !isZero(v.Index(i)) {
 				return false
 			}
 		}
@@ -58,7 +48,7 @@ func isZero(v reflect.Value, seen map[comparison]bool) bool {
 
 	case reflect.Struct:
 		for i, n := 0, v.NumField(); i < n; i++ {
-			if !isZero(v.Field(i), seen) {
+			if !isZero(v.Field(i)) {
 				return false
 			}
 		}
@@ -70,12 +60,7 @@ func isZero(v reflect.Value, seen map[comparison]bool) bool {
 }
 
 // IsZero reports whether v is zero struct
+// Does not support cycle pointers for performance, so as json
 func IsZero(v interface{}) bool {
-	seen := make(map[comparison]bool)
-	return isZero(reflect.ValueOf(v), seen)
-}
-
-type comparison struct {
-	v unsafe.Pointer
-	t reflect.Type
+	return isZero(reflect.ValueOf(v))
 }
