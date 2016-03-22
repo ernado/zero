@@ -27,9 +27,18 @@ func TestZero(t *testing.T) {
 	ch1 := make(chan int)
 	var zeroChan chan int
 
-	type mystring string
+	type CyclePtr *CyclePtr
+	var cyclePtr1 CyclePtr
+	cyclePtr1 = &cyclePtr1
 
-	var iface1, ifaceZero interface{} = &one, &zeroInt
+	type CycleSlice []CycleSlice
+	var cycleSlice CycleSlice
+	cycleSlice = append(cycleSlice, cycleSlice)
+	cycleArray := [2]CyclePtr{cyclePtr1, cyclePtr1}
+
+	type myString string
+
+	var interface1, interfaceZero interface{} = &one, &zeroInt
 
 	var (
 		zeroDetail1 Detail = &struct{}{}
@@ -40,6 +49,8 @@ func TestZero(t *testing.T) {
 		zeroDetail6 Detail = &TestDetail{Data: TestDetailSubStructure{Params: make([]TestDetailParam, 0, 10)}}
 
 		nonZeroDetail1 Detail = &TestDetail{Data: TestDetailSubStructure{Params: []TestDetailParam{TestDetailParam{55}}}}
+		nonZeroDetail2 Detail = &TestDetail{Data: TestDetailSubStructure{ID: 1234}}
+		nonZeroDetail3 Detail = &TestDetail{ID: 1234}
 	)
 
 	for i, test := range []struct {
@@ -48,16 +59,23 @@ func TestZero(t *testing.T) {
 	}{
 		// basic types
 		{0, true},
+		{complex(0,0), true},
 		{1, false},
 		{1.0, false},
+		{true, false},
+		{0.0, true},
 		{"foo", false},
 		{"", true},
-		{mystring(""), true},     // different types
-		{mystring("foo"), false}, // different types
+		{myString(""), true},     // different types
+		{myString("foo"), false}, // different types
 		// slices
 		{[]string{"foo"}, false},
 		{[]string(nil), true},
 		{[]string{}, true},
+		// cycle pointers
+		{cyclePtr1, true},
+		{cycleSlice, false},
+		{cycleArray, true},
 		// maps
 		{map[string][]int{"foo": {1, 2, 3}}, false},
 		{map[string][]int{"foo": {1, 2, 3}}, false},
@@ -76,8 +94,8 @@ func TestZero(t *testing.T) {
 		{ch1, false},
 		{zeroChan, true},
 		// interfaces
-		{&iface1, false},
-		{&ifaceZero, true},
+		{&interface1, false},
+		{&interfaceZero, true},
 		// special case for structures
 		{zeroDetail1, true},
 		{zeroDetail2, true},
@@ -86,6 +104,8 @@ func TestZero(t *testing.T) {
 		{zeroDetail5, true},
 		{zeroDetail6, true},
 		{nonZeroDetail1, false},
+		{nonZeroDetail2, false},
+		{nonZeroDetail3, false},
 	} {
 		if IsZero(test.v) != test.want {
 			t.Errorf("Zero(%v)[%d] = %t", test.v, i, !test.want)

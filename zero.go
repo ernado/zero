@@ -39,9 +39,6 @@ func isZero(v reflect.Value, seen map[comparison]bool) bool {
 	case reflect.Complex64, reflect.Complex128:
 		return v.Complex() == 0
 
-	case reflect.Chan, reflect.UnsafePointer, reflect.Func:
-		return v.IsNil()
-
 	case reflect.Ptr, reflect.Interface:
 		return isZero(v.Elem(), seen)
 
@@ -63,8 +60,10 @@ func isZero(v reflect.Value, seen map[comparison]bool) bool {
 			}
 		}
 		return true
+	// reflect.Chan, reflect.UnsafePointer, reflect.Func
+	default:
+		return v.IsNil()
 	}
-	panic("unreachable")
 }
 
 // IsZero reports whether v is zero struct
